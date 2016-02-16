@@ -7,13 +7,13 @@ import java.nio.charset.Charset;
 
 import javax.imageio.ImageIO;
 
-import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 
-import weixin.popular.bean.QrcodeTicket;
+import weixin.popular.bean.qrcode.QrcodeTicket;
 import weixin.popular.client.LocalHttpClient;
 
 /**
@@ -34,7 +34,7 @@ public class QrcodeAPI extends BaseAPI{
 		HttpUriRequest httpUriRequest = RequestBuilder.post()
 										.setHeader(jsonHeader)
 										.setUri(BASE_URI+"/cgi-bin/qrcode/create")
-										.addParameter("access_token", access_token)
+										.addParameter(getATPN(), access_token)
 										.setEntity(new StringEntity(qrcodeJson,Charset.forName("utf-8")))
 										.build();
 		return LocalHttpClient.executeJsonResult(httpUriRequest,QrcodeTicket.class);
@@ -56,7 +56,7 @@ public class QrcodeAPI extends BaseAPI{
 	/**
 	 * 创建临时二维码
 	 * @param access_token
-	 * @param expire_seconds 不超过604800秒
+	 * @param expire_seconds 最大不超过2592000 秒（即30天）
 	 * @param scene_id		  场景值ID，32位非0整型
 	 * @return
 	 */
@@ -85,12 +85,18 @@ public class QrcodeAPI extends BaseAPI{
 				.setUri(QRCODE_DOWNLOAD_URI + "/cgi-bin/showqrcode")
 				.addParameter("ticket", ticket)
 				.build();
-		HttpResponse httpResponse = LocalHttpClient.execute(httpUriRequest);
+		CloseableHttpResponse httpResponse = LocalHttpClient.execute(httpUriRequest);
 		try {
 			byte[] bytes = EntityUtils.toByteArray(httpResponse.getEntity());
 			return ImageIO.read(new ByteArrayInputStream(bytes));
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				httpResponse.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return null;
 	}

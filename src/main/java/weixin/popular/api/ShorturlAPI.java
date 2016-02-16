@@ -6,7 +6,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 
-import weixin.popular.bean.Shorturl;
+import weixin.popular.bean.shorturl.Shorturl;
 import weixin.popular.client.LocalHttpClient;
 
 public class ShorturlAPI extends BaseAPI{
@@ -23,7 +23,7 @@ public class ShorturlAPI extends BaseAPI{
 		HttpUriRequest httpUriRequest = RequestBuilder.post()
 				.setHeader(jsonHeader)
 				.setUri(BASE_URI + "/cgi-bin/shorturl")
-				.addParameter("access_token", access_token)
+				.addParameter(getATPN(), access_token)
 				.setEntity(new StringEntity(json,Charset.forName("utf-8")))
 				.build();
 		return LocalHttpClient.executeJsonResult(httpUriRequest,Shorturl.class);

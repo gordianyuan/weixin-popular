@@ -1,14 +1,33 @@
 package weixin.popular.util;
 
-import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 
 /**
  * XML 数据接收对象转换工具类
@@ -101,5 +120,43 @@ public class XMLConverUtil{
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * 转换简单的xml to map
+	 * @param xml
+	 * @return
+	 */
+	public static Map<String,String> convertToMap(String xml){
+		Map<String, String> map = new LinkedHashMap<>();
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			StringReader sr = new StringReader(xml);
+			InputSource is = new InputSource(sr);
+			Document document = db.parse(is);
+
+			Element root = document.getDocumentElement();
+			if(root != null){
+				NodeList childNodes = root.getChildNodes();
+				if(childNodes != null && childNodes.getLength()>0){
+					for(int i = 0;i < childNodes.getLength();i++){
+						Node node = childNodes.item(i); 
+						if( node != null && node.getNodeType() == Node.ELEMENT_NODE){
+							map.put(node.getNodeName(), node.getTextContent());
+						}
+					}
+				}
+			}
+		} catch (DOMException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return map;
 	}
 }

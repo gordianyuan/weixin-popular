@@ -7,9 +7,10 @@ import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 
 import weixin.popular.bean.BaseResult;
-import weixin.popular.bean.Menu;
-import weixin.popular.bean.MenuButtons;
-import weixin.popular.bean.selfmenu.CurrentSelfmenuInfo;
+import weixin.popular.bean.menu.Menu;
+import weixin.popular.bean.menu.MenuButtons;
+import weixin.popular.bean.menu.TrymatchResult;
+import weixin.popular.bean.menu.selfmenu.CurrentSelfmenuInfo;
 import weixin.popular.client.LocalHttpClient;
 import weixin.popular.util.JsonUtil;
 
@@ -25,7 +26,7 @@ public class MenuAPI extends BaseAPI{
 		HttpUriRequest httpUriRequest = RequestBuilder.post()
 										.setHeader(jsonHeader)
 										.setUri(BASE_URI+"/cgi-bin/menu/create")
-										.addParameter("access_token", access_token)
+										.addParameter(getATPN(), access_token)
 										.setEntity(new StringEntity(menuJson,Charset.forName("utf-8")))
 										.build();
 		return LocalHttpClient.executeJsonResult(httpUriRequest,BaseResult.class);
@@ -50,7 +51,7 @@ public class MenuAPI extends BaseAPI{
 	public static Menu menuGet(String access_token){
 		HttpUriRequest httpUriRequest = RequestBuilder.post()
 					.setUri(BASE_URI+"/cgi-bin/menu/get")
-					.addParameter("access_token", access_token)
+					.addParameter(getATPN(), access_token)
 					.build();
 		return LocalHttpClient.executeJsonResult(httpUriRequest,Menu.class);
 	}
@@ -63,7 +64,7 @@ public class MenuAPI extends BaseAPI{
 	public static BaseResult menuDelete(String access_token){
 		HttpUriRequest httpUriRequest = RequestBuilder.post()
 				.setUri(BASE_URI+"/cgi-bin/menu/delete")
-				.addParameter("access_token", access_token)
+				.addParameter(getATPN(), access_token)
 				.build();
 		return LocalHttpClient.executeJsonResult(httpUriRequest,BaseResult.class);
 	}
@@ -81,11 +82,59 @@ public class MenuAPI extends BaseAPI{
 	public static CurrentSelfmenuInfo get_current_selfmenu_info(String access_token){
 		HttpUriRequest httpUriRequest = RequestBuilder.post()
 				.setUri(BASE_URI+"/cgi-bin/get_current_selfmenu_info")
-				.addParameter("access_token", access_token)
+				.addParameter(getATPN(), access_token)
 				.build();
 		return LocalHttpClient.executeJsonResult(httpUriRequest,CurrentSelfmenuInfo.class);
 	}
 
+	/**
+	 * 创建个性化菜单
+	 * @param access_token
+	 * @param menuButtons
+	 * @return
+	 */
+	public static BaseResult menuAddconditional(String access_token,MenuButtons menuButtons){
+		String menuJson = JsonUtil.toJSONString(menuButtons);
+		HttpUriRequest httpUriRequest = RequestBuilder.post()
+				.setHeader(jsonHeader)
+				.setUri(BASE_URI+"/cgi-bin/menu/addconditional")
+				.addParameter(getATPN(), access_token)
+				.setEntity(new StringEntity(menuJson,Charset.forName("utf-8")))
+				.build();
+		return LocalHttpClient.executeJsonResult(httpUriRequest,BaseResult.class);
+	}
+
+	/**
+	 * 删除个性化菜单
+	 * @param access_token
+	 * @param menuid
+	 * @return
+	 */
+	public static BaseResult menuDelconditional(String access_token,String menuid){
+		HttpUriRequest httpUriRequest = RequestBuilder.post()
+				.setHeader(jsonHeader)
+				.setUri(BASE_URI+"/cgi-bin/menu/delconditional")
+				.addParameter(getATPN(), access_token)
+				.setEntity(new StringEntity("{\"menuid\":\""+menuid+"\"}",Charset.forName("utf-8")))
+				.build();
+		return LocalHttpClient.executeJsonResult(httpUriRequest,BaseResult.class);
+	}
+
+	/**
+	 * 测试个性化菜单匹配结果
+	 * @param access_token
+	 * @param user_id 可以是粉丝的OpenID，也可以是粉丝的微信号。
+	 * @return
+	 */
+	public static TrymatchResult menuTrymatch(String access_token,String user_id){
+		HttpUriRequest httpUriRequest = RequestBuilder.post()
+				.setHeader(jsonHeader)
+				.setUri(BASE_URI+"/cgi-bin/menu/trymatch")
+				.addParameter(getATPN(), access_token)
+				.setEntity(new StringEntity("{\"user_id\":\""+user_id+"\"}",Charset.forName("utf-8")))
+				.build();
+		return LocalHttpClient.executeJsonResult(httpUriRequest,TrymatchResult.class);
+	}
 
 
 }

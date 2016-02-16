@@ -10,7 +10,7 @@ import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 
 import weixin.popular.bean.BaseResult;
-import weixin.popular.bean.Delivernotify;
+import weixin.popular.bean.pay.Delivernotify;
 import weixin.popular.bean.pay.OrderInfo;
 import weixin.popular.bean.pay.Orderquery;
 import weixin.popular.client.LocalHttpClient;
@@ -18,6 +18,10 @@ import weixin.popular.util.JsonUtil;
 import weixin.popular.util.MapUtil;
 import weixin.popular.util.SignatureUtil;
 
+/**
+ * 老版本支付，新版本使用PayMchAPI。
+ * @author SLYH
+ */
 public class PayAPI extends BaseAPI{
 
 	/**
@@ -30,7 +34,7 @@ public class PayAPI extends BaseAPI{
 		HttpUriRequest httpUriRequest = RequestBuilder.post()
 										.setHeader(jsonHeader)
 										.setUri(BASE_URI + "/pay/delivernotify")
-										.addParameter("access_token", access_token)
+										.addParameter(PARAM_ACCESS_TOKEN, access_token)
 										.setEntity(new StringEntity(delivernotifyJson,Charset.forName("utf-8")))
 										.build();
 		return LocalHttpClient.executeJsonResult(httpUriRequest,BaseResult.class);
@@ -48,7 +52,7 @@ public class PayAPI extends BaseAPI{
 	public static BaseResult payfeedbackUpdate(String access_token,String openid,String feedbackid){
 		HttpUriRequest httpUriRequest = RequestBuilder.post()
 									.setUri(BASE_URI + "/payfeedback/update")
-									.addParameter("access_token", access_token)
+									.addParameter(PARAM_ACCESS_TOKEN, access_token)
 									.addParameter("openid", openid)
 									.addParameter("feedbackid", feedbackid)
 									.build();
@@ -66,7 +70,7 @@ public class PayAPI extends BaseAPI{
 		HttpUriRequest httpUriRequest = RequestBuilder.post()
 										.setHeader(jsonHeader)
 										.setUri(BASE_URI + "/pay/orderquery")
-										.addParameter("access_token", access_token)
+										.addParameter(PARAM_ACCESS_TOKEN, access_token)
 										.setEntity(new StringEntity(orderqueryJson,Charset.forName("utf-8")))
 										.build();
 		return LocalHttpClient.executeJsonResult(httpUriRequest,OrderInfo.class);
